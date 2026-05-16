@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Football Strike - Math PvP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Poppins:wght@300;400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00d9ff;
+            --secondary: #ffa500;
+            --accent: #ff1744;
+            --success: #00e676;
+            --dark-bg: #0a0e27;
+            --darker-bg: #050710;
+            --card-bg: rgba(15, 23, 42, 0.6);
+            --border-color: rgba(0, 217, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--dark-bg);
+            color: #e0e0e0;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at top,
+                    rgba(0, 255, 255, 0.12) 0%,
+                    transparent 35%),
+                radial-gradient(circle at bottom right,
+                    rgba(255, 0, 128, 0.10) 0%,
+                    transparent 40%);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @keyframes ballRoll {
+            0% {
+                transform: translateX(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateX(30px) rotate(180deg);
+            }
+
+            100% {
+                transform: translateX(0) rotate(360deg);
+            }
+        }
+
+        @keyframes goalScored {
+            0% {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1.5) translateY(-150px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes saved {
+            0% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.2) rotate(15deg);
+            }
+
+            100% {
+                transform: scale(0.5) rotate(-30deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.6;
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        @keyframes attackerWin {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 1rem 2rem;
+            background: linear-gradient(to bottom, rgba(10, 14, 39, 0.95), transparent);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .game-container {
+            max-width: 1200px;
+            margin: 1rem auto;
+            padding: 0 1rem;
+        }
+
+        .pitch-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .player-side {
+            padding: 2rem;
+            border-radius: 20px;
+            border: 2px solid var(--border-color);
+            background: linear-gradient(135deg, rgba(10, 14, 39, 0.8), rgba(15, 23, 42, 0.8));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .player-side.attacker {
+            border-color: var(--secondary);
+            background: linear-gradient(135deg, rgba(255, 165, 0, 0.1), rgba(10, 14, 39, 0.8));
+        }
+
+        .player-side.defender {
+            border-color: var(--accent);
+            background: linear-gradient(135deg, rgba(255, 23, 68, 0.1), rgba(10, 14, 39, 0.8));
+        }
+
+        .player-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .player-role {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #999;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .player-name {
+            font-size: 1.5rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+
+        .player-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            margin: 0.5rem auto;
+            border: 3px solid var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .attacker .player-avatar {
+            border-color: var(--secondary);
+            background: linear-gradient(135deg, var(--secondary), #ff8c00);
+        }
+
+        .defender .player-avatar {
+            border-color: var(--accent);
+            background: linear-gradient(135deg, var(--accent), #ff1744);
+        }
+
+        .score-display {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            font-family: 'JetBrains Mono', monospace;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        .attacker .score-display {
+            color: var(--secondary);
+        }
+
+        .defender .score-display {
+            color: var(--accent);
+        }
+
+        .status-text {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #999;
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        .center-pitch {
+            grid-column: 1 / -1;
+            padding: 2rem;
+            border-radius: 20px;
+            border: 2px solid var(--primary);
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(10, 14, 39, 0.9));
+            text-align: center;
+        }
+
+        .pitch-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #999;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+        }
+
+        .question-display {
+            font-size: 3rem;
+            font-weight: 900;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary);
+            margin: 1rem 0;
+            text-shadow: 0 0 30px rgba(0, 217, 255, 0.3);
+            letter-spacing: 2px;
+        }
+
+        .timer-ring {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-size: 2.5rem;
+            font-weight: 900;
+            font-family: 'JetBrains Mono', monospace;
+            position: relative;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .timer-ring.critical {
+            border-color: var(--accent);
+            color: var(--accent);
+            animation: pulse 0.3s ease-in-out infinite;
+        }
+
+        .answer-input {
+            width: 100%;
+            max-width: 300px;
+            padding: 1rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(5, 7, 16, 0.9);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--primary);
+            text-align: center;
+            letter-spacing: 2px;
+            margin: 1rem auto;
+            display: block;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .answer-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 30px rgba(0, 217, 255, 0.3);
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, var(--primary), #00a8cc);
+            color: var(--dark-bg);
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 800;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0 0.5rem;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-banner {
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .result-banner.show {
+            display: block;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        .result-banner.goal {
+            background: rgba(255, 165, 0, 0.2);
+            color: var(--secondary);
+            border: 2px solid var(--secondary);
+        }
+
+        .result-banner.save {
+            background: rgba(255, 23, 68, 0.2);
+            color: var(--accent);
+            border: 2px solid var(--accent);
+        }
+
+        .result-banner.miss {
+            background: rgba(100, 100, 100, 0.2);
+            color: #999;
+            border: 2px solid #999;
+        }
+
+        .rounds-info {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(0, 217, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .round-item {
+            text-align: center;
+        }
+
+        .round-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #999;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .round-value {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(10, 14, 39, 0.98), rgba(15, 23, 42, 0.98));
+            border-radius: 20px;
+            padding: 3rem;
+            border: 2px solid var(--primary);
+            text-align: center;
+            max-width: 500px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 60px rgba(0, 217, 255, 0.3);
+        }
+
+        .modal-emoji {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            font-weight: 900;
+            margin: 1rem 0;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .modal-subtitle {
+            font-size: 1.2rem;
+            color: #bbb;
+            margin: 1.5rem 0;
+            font-weight: 600;
+        }
+
+        .final-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(0, 217, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #999;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #00a8cc);
+            color: var(--dark-bg);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(0, 217, 255, 0.1);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 217, 255, 0.2);
+        }
+
+        .animation-text {
+            position: fixed;
+            font-weight: 900;
+            font-size: 3rem;
+            pointer-events: none;
+            z-index: 999;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .goal-text {
+            color: var(--secondary);
+            animation: goalScored 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .save-text {
+            color: var(--accent);
+            animation: saved 0.8s ease-in-out;
+        }
+
+        .waiting-msg {
+            font-size: 0.9rem;
+            color: #999;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .pitch-container {
+                grid-template-columns: 1fr;
+            }
+
+            .center-pitch {
+                grid-column: auto;
+            }
+
+            .question-display {
+                font-size: 2rem;
+            }
+
+            .timer-ring {
+                width: 100px;
+                height: 100px;
+                font-size: 2rem;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+            }
+
+            .modal-title {
+                font-size: 1.5rem;
+            }
+
+            .final-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <div class="top-nav">
+        <div class="nav-content">
+            <div class="logo">
+                <div class="logo-icon">⚽</div>
+                <span>Football Strike - Math PvP</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Game Container -->
+    <div class="game-container">
+
+        <!-- Rounds Info -->
+        <div class="rounds-info">
+            <div class="round-item">
+                <div class="round-label">Current Round</div>
+                <div class="round-value" id="roundDisplay">1/5</div>
+            </div>
+            <div class="round-item">
+                <div class="round-label">Attacker Goals</div>
+                <div class="round-value" id="attackerGoals">0</div>
+            </div>
+            <div class="round-item">
+                <div class="round-label">Defender Saves</div>
+                <div class="round-value" id="defenderSaves">0</div>
+            </div>
+        </div>
+
+        <!-- Dual Player Pitch -->
+        <div class="pitch-container">
+            <!-- ATTACKER SIDE -->
+            <div class="player-side attacker">
+                <div class="player-header">
+                    <div class="player-role">⚡ Attacker (Striker)</div>
+                    <div class="player-avatar">⚽</div>
+                    <div class="player-name">Your Team</div>
+                    <div class="score-display" id="attackerScore">0</div>
+                    <div class="status-text">GOALS SCORED</div>
+                </div>
+
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <div
+                        style="font-size: 0.85rem; color: #999; margin-bottom: 0.75rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">
+                        Answer Correctly to Score 🎯</div>
+                    <input type="number" id="attackerAnswer" class="answer-input" placeholder="Your answer..."
+                        autocomplete="off" />
+                    <button class="submit-btn" onclick="submitAttackerAnswer()">⚽ SHOOT</button>
+                </div>
+            </div>
+
+            <!-- CENTER PITCH -->
+            <div class="center-pitch">
+                <div class="pitch-title">⚡ Current Challenge ⚡</div>
+                <div class="question-display" id="questionDisplay">0 + 0</div>
+                <div class="timer-ring" id="timerRing">15</div>
+                <div class="result-banner" id="resultBanner"></div>
+            </div>
+
+            <!-- DEFENDER SIDE -->
+            <div class="player-side defender">
+                <div class="player-header">
+                    <div class="player-role">🧤 Defender (Goalkeeper)</div>
+                    <div class="player-avatar">🧤</div>
+                    <div class="player-name">AI Opponent</div>
+                    <div class="score-display" id="defenderScore">0</div>
+                    <div class="status-text">SAVES MADE</div>
+                </div>
+
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <div
+                        style="font-size: 0.85rem; color: #999; margin-bottom: 0.75rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">
+                        AI is Defending... 🛡️</div>
+                    <div
+                        style="padding: 1.5rem; background: rgba(255, 23, 68, 0.1); border-radius: 12px; border: 1px solid var(--accent); margin: 1rem 0;">
+                        <div id="defenderStatus" style="color: var(--accent); font-weight: 700;">Waiting for your
+                            answer...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Match Result Modal -->
+    <div id="resultModal" class="modal">
+        <div class="modal-content">
+            <div id="resultEmoji" class="modal-emoji">🏆</div>
+            <div class="modal-title" id="resultTitle">VICTORY!</div>
+            <div class="modal-subtitle" id="resultSubtitle">Outstanding performance!</div>
+
+            <div class="final-stats">
+                <div class="stat-box">
+                    <div class="stat-label">Your Goals</div>
+                    <div class="stat-value" id="finalAttackerScore">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">AI Saves</div>
+                    <div class="stat-value" id="finalDefenderScore">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Accuracy</div>
+                    <div class="stat-value" id="finalAccuracy">0%</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Time Avg</div>
+                    <div class="stat-value" id="finalTime">0s</div>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="resetGame()">🔄 Play Again</button>
+                <button class="btn btn-primary" onclick="shareScore()">📊 Share</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========================
+        // GAME STATE
+        // ========================
+        const TOTAL_ROUNDS = 5;
+        const TIME_LIMIT = 15;
+
+        let gameState = {
+            currentRound: 1,
+            attackerGoals: 0,
+            defenderSaves: 0,
+            totalAttempts: 0,
+            totalCorrect: 0,
+            roundResults: [],
+            timesTaken: [],
+            currentQuestion: '',
+            currentAnswer: 0,
+            timeRemaining: TIME_LIMIT,
+            timerInterval: null,
+            gameActive: true
+        };
+
+        // ========================
+        // QUESTION GENERATOR
+        // ========================
+        function rand(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateQuestion() {
+            const types = ['addition', 'subtraction', 'multiplication', 'division', 'percentage', 'algebra'];
+            const type = types[Math.floor(Math.random() * types.length)];
+
+            let question, answer;
+
+            switch (type) {
+                case 'addition':
+                    const a1 = rand(10, 50);
+                    const b1 = rand(10, 50);
+                    question = `${a1} + ${b1}`;
+                    answer = a1 + b1;
+                    break;
+
+                case 'subtraction':
+                    const a2 = rand(50, 100);
+                    const b2 = rand(10, 40);
+                    question = `${a2} − ${b2}`;
+                    answer = a2 - b2;
+                    break;
+
+                case 'multiplication':
+                    const a3 = rand(5, 15);
+                    const b3 = rand(5, 15);
+                    question = `${a3} × ${b3}`;
+                    answer = a3 * b3;
+                    break;
+
+                case 'division':
+                    const divisor = rand(2, 10);
+                    answer = rand(5, 20);
+                    const dividend = answer * divisor;
+                    question = `${dividend} ÷ ${divisor}`;
+                    break;
+
+                case 'percentage':
+                    const percent = rand(10, 50);
+                    const value = rand(100, 500);
+                    question = `${percent}% of ${value}`;
+                    answer = Math.round((percent / 100) * value);
+                    break;
+
+                case 'algebra':
+                    const coef = rand(2, 8);
+                    const const1 = rand(10, 30);
+                    const result = rand(20, 50);
+                    question = `${coef}x + ${const1} = ${result}`;
+                    answer = Math.round((result - const1) / coef);
+                    break;
+            }
+
+            return { question, answer };
+        }
+
+        // ========================
+        // INITIALIZE GAME
+        // ========================
+        function initRound() {
+            const q = generateQuestion();
+            gameState.currentQuestion = q.question;
+            gameState.currentAnswer = q.answer;
+            gameState.timeRemaining = TIME_LIMIT;
+            gameState.gameActive = true;
+
+            document.getElementById('questionDisplay').textContent = q.question;
+            document.getElementById('attackerAnswer').value = '';
+            document.getElementById('attackerAnswer').focus();
+            document.getElementById('resultBanner').classList.remove('show', 'goal', 'save', 'miss');
+            document.getElementById('defenderStatus').textContent = 'Ready to defend...';
+
+            startTimer();
+        }
+
+        // ========================
+        // TIMER
+        // ========================
+        function startTimer() {
+            updateTimerDisplay();
+
+            gameState.timerInterval = setInterval(() => {
+                gameState.timeRemaining--;
+                updateTimerDisplay();
+
+                if (gameState.timeRemaining <= 0) {
+                    clearInterval(gameState.timerInterval);
+                    gameState.gameActive = false;
+                    handleTimeUp();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const ring = document.getElementById('timerRing');
+            ring.textContent = gameState.timeRemaining;
+
+            if (gameState.timeRemaining <= 3) {
+                ring.classList.add('critical');
+            } else {
+                ring.classList.remove('critical');
+            }
+        }
+
+        // ========================
+        // SUBMIT ANSWER
+        // ========================
+        function submitAttackerAnswer() {
+            if (!gameState.gameActive) return;
+
+            clearInterval(gameState.timerInterval);
+            gameState.gameActive = false;
+
+            const userAnswer = parseInt(document.getElementById('attackerAnswer').value);
+            const timeTaken = TIME_LIMIT - gameState.timeRemaining;
+
+            gameState.totalAttempts++;
+            gameState.timesTaken.push(timeTaken);
+
+            if (!isNaN(userAnswer) && userAnswer === gameState.currentAnswer) {
+                // ATTACKER SCORES!
+                gameState.totalCorrect++;
+                gameState.attackerGoals++;
+
+                // AI Defender Response (slower)
+                document.getElementById('defenderStatus').textContent = '❌ Goal! Can\'t save this one!';
+
+                showGoalAnimation();
+                showResultBanner('⚽ GOAL! +1', 'goal');
+
+                gameState.roundResults.push({ attacker: 'GOAL', defender: 'MISS' });
+
+            } else {
+                // DEFENDER SAVES!
+                document.getElementById('defenderStatus').textContent = `✅ Saved! Correct: ${gameState.currentAnswer}`;
+
+                gameState.defenderSaves++;
+                showSaveAnimation();
+                showResultBanner(`🧤 SAVED! (${gameState.currentAnswer})`, 'save');
+
+                gameState.roundResults.push({ attacker: 'MISS', defender: 'SAVE' });
+            }
+
+            updateScores();
+
+            setTimeout(() => {
+                if (gameState.currentRound < TOTAL_ROUNDS) {
+                    gameState.currentRound++;
+                    initRound();
+                } else {
+                    endGame();
+                }
+            }, 2000);
+        }
+
+        // ========================
+        // TIME UP
+        // ========================
+        function handleTimeUp() {
+            document.getElementById('defenderStatus').textContent = '✅ Time\'s up! Defender Wins!';
+            gameState.defenderSaves++;
+
+            showSaveAnimation();
+            showResultBanner('⏰ TIME\'S UP! SAVED!', 'save');
+
+            gameState.roundResults.push({ attacker: 'TIMEOUT', defender: 'SAVE' });
+            gameState.totalAttempts++;
+
+            updateScores();
+
+            setTimeout(() => {
+                if (gameState.currentRound < TOTAL_ROUNDS) {
+                    gameState.currentRound++;
+                    initRound();
+                } else {
+                    endGame();
+                }
+            }, 2000);
+        }
+
+        // ========================
+        // UPDATE SCORES
+        // ========================
+        function updateScores() {
+            document.getElementById('attackerGoals').textContent = gameState.attackerGoals;
+            document.getElementById('defenderSaves').textContent = gameState.defenderSaves;
+            document.getElementById('roundDisplay').textContent = `${gameState.currentRound}/${TOTAL_ROUNDS}`;
+            document.getElementById('attackerScore').textContent = gameState.attackerGoals;
+            document.getElementById('defenderScore').textContent = gameState.defenderSaves;
+        }
+
+        // ========================
+        // SHOW RESULT BANNER
+        // ========================
+        function showResultBanner(text, type) {
+            const banner = document.getElementById('resultBanner');
+            banner.textContent = text;
+            banner.className = `result-banner show ${type}`;
+        }
+
+        // ========================
+        // ANIMATIONS
+        // ========================
+        function showGoalAnimation() {
+            const text = document.createElement('div');
+            text.className = 'animation-text goal-text';
+            text.innerHTML = '⚽ GOAL!';
+            text.style.left = '50%';
+            text.style.top = '30%';
+            document.body.appendChild(text);
+
+            setTimeout(() => text.remove(), 1200);
+        }
+
+        function showSaveAnimation() {
+            const text = document.createElement('div');
+            text.className = 'animation-text save-text';
+            text.innerHTML = '🧤 SAVED!';
+            text.style.left = '50%';
+            text.style.top = '30%';
+            document.body.appendChild(text);
+
+            setTimeout(() => text.remove(), 1000);
+        }
+
+        // ========================
+        // END GAME
+        // ========================
+        function endGame() {
+            const modal = document.getElementById('resultModal');
+            const won = gameState.attackerGoals > gameState.defenderSaves;
+
+            document.getElementById('finalAttackerScore').textContent = gameState.attackerGoals;
+            document.getElementById('finalDefenderScore').textContent = gameState.defenderSaves;
+
+            const accuracy = gameState.totalAttempts > 0
+                ? Math.round((gameState.totalCorrect / gameState.totalAttempts) * 100)
+                : 0;
+
+            const avgTime = gameState.timesTaken.length > 0
+                ? (gameState.timesTaken.reduce((a, b) => a + b, 0) / gameState.timesTaken.length).toFixed(1)
+                : 0;
+
+            document.getElementById('finalAccuracy').textContent = accuracy + '%';
+            document.getElementById('finalTime').textContent = avgTime + 's';
+
+            if (won) {
+                document.getElementById('resultEmoji').textContent = '🏆';
+                document.getElementById('resultTitle').textContent = 'VICTORY!';
+                document.getElementById('resultSubtitle').textContent = `You scored ${gameState.attackerGoals} goals! Fantastic match!`;
+            } else if (gameState.attackerGoals === gameState.defenderSaves) {
+                document.getElementById('resultEmoji').textContent = '🤝';
+                document.getElementById('resultTitle').textContent = 'DRAW!';
+                document.getElementById('resultSubtitle').textContent = `Both sides played equally well!`;
+            } else {
+                document.getElementById('resultEmoji').textContent = '🧤';
+                document.getElementById('resultTitle').textContent = 'DEFEATED!';
+                document.getElementById('resultSubtitle').textContent = `Defender saved ${gameState.defenderSaves} shots!`;
+            }
+
+            modal.classList.add('active');
+        }
+
+        // ========================
+        // SHARE SCORE
+        // ========================
+        function shareScore() {
+            const result = gameState.attackerGoals > gameState.defenderSaves ? 'WON' : 'LOST';
+            const shareText = `Football Strike Math PvP: I ${result}! Scored ${gameState.attackerGoals} goals vs AI's ${gameState.defenderSaves} saves. Accuracy: ${Math.round((gameState.totalCorrect / gameState.totalAttempts) * 100)}%`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Football Strike Math PvP',
+                    text: shareText
+                }).catch(() => copyToClipboard(shareText));
+            } else {
+                copyToClipboard(shareText);
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard?.writeText(text).then(() => {
+                alert('Score copied to clipboard!');
+            });
+        }
+
+        // ========================
+        // RESET GAME
+        // ========================
+        function resetGame() {
+            location.reload();
+        }
+
+        // ========================
+        // INITIALIZE
+        // ========================
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // JOIN ROOM
+            roomRef.child("players/" + playerId).set({
+
+                joined: true,
+                score: 0
+
+            });
+
+            initRound();
+
+        });
+        roomRef.child("players").on("value", (snapshot) => {
+
+            const players = snapshot.val();
+
+            if (!players) return;
+
+            const count = Object.keys(players).length;
+
+            console.log("Players Connected:", count);
+
+            if (count === 2) {
+
+                alert("Match Ready!");
+
+            }
+
+        });
+
+
+        // Enter key to submit
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && gameState.gameActive) {
+                submitAttackerAnswer();
+            }
+        });
+
+
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+
+            apiKey: "AIzaSyB2X4cqjED6zFYcDxTjIf5hilLUEaoIss4",
+            authDomain: "football-math-pvp.firebaseapp.com",
+            databaseURL: "https://football-math-pvp-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "football-math-pvp",
+            storageBucket: "football-math-pvp.firebasestorage.app",
+            messagingSenderId: "1002558163280",
+            appId: "1:1002558163280:web:11bed90edc221e484a0455"
+
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        const db = firebase.database();
+
+        const roomId = "ROOM1";
+
+        const roomRef = db.ref("rooms/" + roomId);
+        const playerId =
+            Math.random().toString(36).substr(2, 9);
+    </script>
+</body>
+</html>
