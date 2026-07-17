@@ -192,9 +192,10 @@
 
         .pitch-container {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: minmax(0, 1fr) minmax(280px, 1.1fr) minmax(0, 1fr);
             gap: 1.5rem;
             margin-bottom: 2rem;
+            align-items: stretch;
         }
 
         .player-side {
@@ -209,11 +210,15 @@
         .player-side.attacker {
             border-color: var(--secondary);
             background: linear-gradient(135deg, rgba(255, 165, 0, 0.1), rgba(10, 14, 39, 0.8));
+            width: 100%;
+            height: 100%;
         }
 
         .player-side.defender {
             border-color: var(--accent);
             background: linear-gradient(135deg, rgba(255, 23, 68, 0.1), rgba(10, 14, 39, 0.8));
+            width: 100%;
+            height: 100%;
         }
 
         .player-header {
@@ -234,8 +239,8 @@
 
         .player-name {
             font-size: 1.5rem;
-            font-weight: 900;
-            margin-bottom: 0.5rem;
+            font-weight:650;
+            margin-bottom: 0.2rem;
         }
 
         .player-avatar {
@@ -287,12 +292,14 @@
         }
 
         .center-pitch {
-            grid-column: 1 / -1;
+            grid-column: auto;
             padding: 2rem;
             border-radius: 20px;
             border: 2px solid var(--primary);
             background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(10, 14, 39, 0.9));
             text-align: center;
+            height: 100%;
+            width: 100%;
         }
 
         .pitch-title {
@@ -311,7 +318,7 @@
             color: var(--primary);
             margin: 1rem 0;
             text-shadow: 0 0 30px rgba(0, 217, 255, 0.3);
-            letter-spacing: 2px;
+            letter-spacing: 0.2px;
         }
 
         .timer-ring {
@@ -599,10 +606,6 @@
         @media (max-width: 768px) {
             .pitch-container {
                 grid-template-columns: 1fr;
-            }
-
-            .center-pitch {
-                grid-column: auto;
             }
 
             .question-display {
