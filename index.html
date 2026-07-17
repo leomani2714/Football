@@ -32,6 +32,7 @@
             background: var(--dark-bg);
             color: #e0e0e0;
             overflow-x: hidden;
+            min-height: 100vh;
             background-image:
                 radial-gradient(circle at top,
                     rgba(0, 255, 255, 0.12) 0%,
@@ -48,102 +49,35 @@
             background-clip: text;
         }
 
-        @keyframes ballRoll {
-            0% {
-                transform: translateX(0) rotate(0deg);
-            }
-
-            50% {
-                transform: translateX(30px) rotate(180deg);
-            }
-
-            100% {
-                transform: translateX(0) rotate(360deg);
-            }
-        }
-
         @keyframes goalScored {
-            0% {
-                transform: scale(1) translateY(0);
-                opacity: 1;
-            }
-
-            100% {
-                transform: scale(1.5) translateY(-150px);
-                opacity: 0;
-            }
+            0% { transform: scale(1) translateY(0); opacity: 1; }
+            100% { transform: scale(1.5) translateY(-150px); opacity: 0; }
         }
 
         @keyframes saved {
-            0% {
-                transform: scale(1) rotate(0deg);
-                opacity: 1;
-            }
-
-            50% {
-                transform: scale(1.2) rotate(15deg);
-            }
-
-            100% {
-                transform: scale(0.5) rotate(-30deg);
-                opacity: 0;
-            }
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            50% { transform: scale(1.2) rotate(15deg); }
+            100% { transform: scale(0.5) rotate(-30deg); opacity: 0; }
         }
 
         @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-
-            50% {
-                opacity: 0.6;
-                transform: scale(1.05);
-            }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
         }
 
-        @keyframes shake {
-
-            0%,
-            100% {
-                transform: translateX(0);
-            }
-
-            25% {
-                transform: translateX(-5px);
-            }
-
-            75% {
-                transform: translateX(5px);
-            }
+        @keyframes popIn {
+            0% { transform: scale(0.6); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
-        @keyframes attackerWin {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.1);
-            }
-
-            100% {
-                transform: scale(1);
-            }
+        @keyframes confettiFall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
         }
 
         .top-nav {
@@ -162,6 +96,42 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            gap: 1.5rem;
+        }
+
+        .mute-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: rgba(0, 217, 255, 0.06);
+            color: var(--primary);
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .mute-btn:hover {
+            background: rgba(0, 217, 255, 0.15);
+        }
+
+        .difficulty-badge {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            color: #999;
+            padding: 0.4rem 0.8rem;
+            border-radius: 999px;
+            border: 1px solid var(--border-color);
+            background: rgba(255, 165, 0, 0.06);
+        }
+
+        .difficulty-badge .level {
+            color: var(--secondary);
         }
 
         .logo {
@@ -205,6 +175,7 @@
             background: linear-gradient(135deg, rgba(10, 14, 39, 0.8), rgba(15, 23, 42, 0.8));
             position: relative;
             overflow: hidden;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         .player-side.attacker {
@@ -219,6 +190,14 @@
             background: linear-gradient(135deg, rgba(255, 23, 68, 0.1), rgba(10, 14, 39, 0.8));
             width: 100%;
             height: 100%;
+        }
+
+        .player-side.flash-win {
+            box-shadow: 0 0 40px rgba(255, 165, 0, 0.45);
+        }
+
+        .player-side.flash-lose {
+            box-shadow: 0 0 40px rgba(255, 23, 68, 0.45);
         }
 
         .player-header {
@@ -239,7 +218,7 @@
 
         .player-name {
             font-size: 1.5rem;
-            font-weight:650;
+            font-weight: 650;
             margin-bottom: 0.2rem;
         }
 
@@ -275,13 +254,8 @@
             margin-top: 0.5rem;
         }
 
-        .attacker .score-display {
-            color: var(--secondary);
-        }
-
-        .defender .score-display {
-            color: var(--accent);
-        }
+        .attacker .score-display { color: var(--secondary); }
+        .defender .score-display { color: var(--accent); }
 
         .status-text {
             text-align: center;
@@ -291,8 +265,28 @@
             font-weight: 600;
         }
 
+        .streak-badge {
+            display: inline-block;
+            margin-top: 0.5rem;
+            padding: 0.2rem 0.7rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            background: rgba(255, 165, 0, 0.15);
+            color: var(--secondary);
+            border: 1px solid rgba(255, 165, 0, 0.4);
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.25s ease;
+        }
+
+        .streak-badge.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
         .center-pitch {
-            grid-column: auto;
             padding: 2rem;
             border-radius: 20px;
             border: 2px solid var(--primary);
@@ -300,6 +294,8 @@
             text-align: center;
             height: 100%;
             width: 100%;
+            display: flex;
+            flex-direction: column;
         }
 
         .pitch-title {
@@ -312,13 +308,14 @@
         }
 
         .question-display {
-            font-size: 3rem;
+            font-size: 2.6rem;
             font-weight: 900;
             font-family: 'JetBrains Mono', monospace;
             color: var(--primary);
             margin: 1rem 0;
             text-shadow: 0 0 30px rgba(0, 217, 255, 0.3);
             letter-spacing: 0.2px;
+            animation: popIn 0.3s ease;
         }
 
         .timer-ring {
@@ -343,6 +340,27 @@
             animation: pulse 0.3s ease-in-out infinite;
         }
 
+        .timer-track {
+            width: 100%;
+            max-width: 260px;
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            margin: 0.5rem auto 1rem;
+            overflow: hidden;
+        }
+
+        .timer-fill {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 1s linear, background 0.3s ease;
+        }
+
+        .timer-fill.critical {
+            background: linear-gradient(90deg, var(--accent), #ff5252);
+        }
+
         .answer-input {
             width: 100%;
             max-width: 300px;
@@ -365,6 +383,10 @@
         .answer-input:focus {
             border-color: var(--primary);
             box-shadow: 0 0 30px rgba(0, 217, 255, 0.3);
+        }
+
+        .answer-input:disabled {
+            opacity: 0.5;
         }
 
         .submit-btn {
@@ -398,13 +420,13 @@
             text-align: center;
             font-size: 1.3rem;
             font-weight: 800;
-            margin-top: 1.5rem;
+            margin-top: auto;
             display: none;
         }
 
         .result-banner.show {
             display: block;
-            animation: slideDown 0.5s ease-out;
+            animation: slideDown 0.4s ease-out;
         }
 
         .result-banner.goal {
@@ -419,12 +441,6 @@
             border: 2px solid var(--accent);
         }
 
-        .result-banner.miss {
-            background: rgba(100, 100, 100, 0.2);
-            color: #999;
-            border: 2px solid #999;
-        }
-
         .rounds-info {
             display: flex;
             justify-content: center;
@@ -434,11 +450,10 @@
             background: rgba(0, 217, 255, 0.05);
             border-radius: 12px;
             border: 1px solid var(--border-color);
+            flex-wrap: wrap;
         }
 
-        .round-item {
-            text-align: center;
-        }
+        .round-item { text-align: center; }
 
         .round-label {
             font-size: 0.75rem;
@@ -459,10 +474,7 @@
         .modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0, 0, 0, 0.9);
             z-index: 1000;
             align-items: center;
@@ -470,9 +482,7 @@
             padding: 1rem;
         }
 
-        .modal.active {
-            display: flex;
-        }
+        .modal.active { display: flex; }
 
         .modal-content {
             background: linear-gradient(135deg, rgba(10, 14, 39, 0.98), rgba(15, 23, 42, 0.98));
@@ -482,13 +492,10 @@
             text-align: center;
             max-width: 500px;
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 60px rgba(0, 217, 255, 0.3);
+            animation: popIn 0.35s ease;
         }
 
-        .modal-emoji {
-            font-size: 5rem;
-            margin-bottom: 1rem;
-            display: inline-block;
-        }
+        .modal-emoji { font-size: 5rem; margin-bottom: 1rem; display: inline-block; }
 
         .modal-title {
             font-size: 2rem;
@@ -518,9 +525,7 @@
             border: 1px solid var(--border-color);
         }
 
-        .stat-box {
-            text-align: center;
-        }
+        .stat-box { text-align: center; }
 
         .stat-label {
             font-size: 0.8rem;
@@ -538,11 +543,59 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
+        .leaderboard {
+            text-align: left;
+            background: rgba(0, 217, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+            margin-top: 1.5rem;
+        }
+
+        .leaderboard-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 800;
+            color: #999;
+            margin-bottom: 0.6rem;
+            text-align: center;
+        }
+
+        .leaderboard-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            padding: 0.35rem 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+        }
+
+        .leaderboard-row:last-child { border-bottom: none; }
+
+        .leaderboard-row .rank {
+            color: var(--secondary);
+            font-weight: 800;
+            width: 1.8rem;
+        }
+
+        .leaderboard-row .lb-score { color: var(--primary); font-weight: 700; }
+        .leaderboard-row .lb-meta { color: #888; font-size: 0.75rem; }
+
+        .leaderboard-empty {
+            text-align: center;
+            color: #777;
+            font-size: 0.8rem;
+            padding: 0.5rem 0;
+        }
+
         .modal-buttons {
             display: flex;
             gap: 1rem;
             margin-top: 2rem;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .btn {
@@ -573,9 +626,7 @@
             border: 2px solid var(--primary);
         }
 
-        .btn-secondary:hover {
-            background: rgba(0, 217, 255, 0.2);
-        }
+        .btn-secondary:hover { background: rgba(0, 217, 255, 0.2); }
 
         .animation-text {
             position: fixed;
@@ -584,6 +635,9 @@
             pointer-events: none;
             z-index: 999;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            left: 50%;
+            top: 30%;
+            transform: translateX(-50%);
         }
 
         .goal-text {
@@ -596,58 +650,58 @@
             animation: saved 0.8s ease-in-out;
         }
 
-        .waiting-msg {
-            font-size: 0.9rem;
-            color: #999;
-            font-weight: 600;
-            margin-top: 1rem;
+        .confetti-piece {
+            position: fixed;
+            top: -10vh;
+            width: 8px;
+            height: 14px;
+            pointer-events: none;
+            z-index: 998;
+            animation: confettiFall linear forwards;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px; height: 1px;
+            padding: 0; margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            white-space: nowrap; border: 0;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
         }
 
         @media (max-width: 768px) {
-            .pitch-container {
-                grid-template-columns: 1fr;
-            }
-
-            .question-display {
-                font-size: 2rem;
-            }
-
-            .timer-ring {
-                width: 100px;
-                height: 100px;
-                font-size: 2rem;
-            }
-
-            .modal-content {
-                padding: 1.5rem;
-            }
-
-            .modal-title {
-                font-size: 1.5rem;
-            }
-
-            .final-stats {
-                grid-template-columns: 1fr;
-            }
+            .pitch-container { grid-template-columns: 1fr; }
+            .question-display { font-size: 2rem; }
+            .timer-ring { width: 100px; height: 100px; font-size: 2rem; }
+            .modal-content { padding: 1.5rem; }
+            .modal-title { font-size: 1.5rem; }
+            .final-stats { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 
 <body>
-    <!-- Navigation Bar -->
     <div class="top-nav">
         <div class="nav-content">
             <div class="logo">
                 <div class="logo-icon">⚽</div>
                 <span>Football Strike - Math PvP</span>
             </div>
+            <div class="difficulty-badge">Difficulty <span class="level" id="difficultyLevel">Rookie</span></div>
+            <button class="mute-btn" id="muteBtn" onclick="toggleMute()" aria-label="Toggle sound" title="Toggle sound">🔊</button>
         </div>
     </div>
 
-    <!-- Main Game Container -->
     <div class="game-container">
 
-        <!-- Rounds Info -->
         <div class="rounds-info">
             <div class="round-item">
                 <div class="round-label">Current Round</div>
@@ -663,25 +717,25 @@
             </div>
         </div>
 
-        <!-- Dual Player Pitch -->
         <div class="pitch-container">
             <!-- ATTACKER SIDE -->
-            <div class="player-side attacker">
+            <div class="player-side attacker" id="attackerCard">
                 <div class="player-header">
                     <div class="player-role">⚡ Attacker (Striker)</div>
                     <div class="player-avatar">⚽</div>
                     <div class="player-name">Your Team</div>
                     <div class="score-display" id="attackerScore">0</div>
                     <div class="status-text">GOALS SCORED</div>
+                    <div class="streak-badge" id="streakBadge">🔥 STREAK x0</div>
                 </div>
 
                 <div style="text-align: center; margin-top: 1.5rem;">
-                    <div
-                        style="font-size: 0.85rem; color: #999; margin-bottom: 0.75rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">
+                    <div style="font-size: 0.85rem; color: #999; margin-bottom: 0.75rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">
                         Answer Correctly to Score 🎯</div>
+                    <label for="attackerAnswer" class="sr-only">Your answer</label>
                     <input type="number" id="attackerAnswer" class="answer-input" placeholder="Your answer..."
-                        autocomplete="off" />
-                    <button class="submit-btn" onclick="submitAttackerAnswer()">⚽ SHOOT</button>
+                        autocomplete="off" inputmode="numeric" />
+                    <button class="submit-btn" id="shootBtn" onclick="submitAttackerAnswer()">⚽ SHOOT</button>
                 </div>
             </div>
 
@@ -690,11 +744,12 @@
                 <div class="pitch-title">⚡ Current Challenge ⚡</div>
                 <div class="question-display" id="questionDisplay">0 + 0</div>
                 <div class="timer-ring" id="timerRing">15</div>
-                <div class="result-banner" id="resultBanner"></div>
+                <div class="timer-track"><div class="timer-fill" id="timerFill"></div></div>
+                <div class="result-banner" id="resultBanner" role="status" aria-live="polite"></div>
             </div>
 
             <!-- DEFENDER SIDE -->
-            <div class="player-side defender">
+            <div class="player-side defender" id="defenderCard">
                 <div class="player-header">
                     <div class="player-role">🧤 Defender (Goalkeeper)</div>
                     <div class="player-avatar">🧤</div>
@@ -704,13 +759,10 @@
                 </div>
 
                 <div style="text-align: center; margin-top: 1.5rem;">
-                    <div
-                        style="font-size: 0.85rem; color: #999; margin-bottom: 0.75rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">
+                    <div style="font-size: 0.85rem; color: #999; margin-bottom: 0.75rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">
                         AI is Defending... 🛡️</div>
-                    <div
-                        style="padding: 1.5rem; background: rgba(255, 23, 68, 0.1); border-radius: 12px; border: 1px solid var(--accent); margin: 1rem 0;">
-                        <div id="defenderStatus" style="color: var(--accent); font-weight: 700;">Waiting for your
-                            answer...</div>
+                    <div style="padding: 1.5rem; background: rgba(255, 23, 68, 0.1); border-radius: 12px; border: 1px solid var(--accent); margin: 1rem 0; min-height: 60px; display:flex; align-items:center; justify-content:center;">
+                        <div id="defenderStatus" style="color: var(--accent); font-weight: 700;">Ready to defend...</div>
                     </div>
                 </div>
             </div>
@@ -743,6 +795,11 @@
                 </div>
             </div>
 
+            <div class="leaderboard" id="leaderboardBox">
+                <div class="leaderboard-title">🏅 This Session's Best</div>
+                <div id="leaderboardList"></div>
+            </div>
+
             <div class="modal-buttons">
                 <button class="btn btn-secondary" onclick="resetGame()">🔄 Play Again</button>
                 <button class="btn btn-primary" onclick="shareScore()">📊 Share</button>
@@ -755,7 +812,9 @@
         // GAME STATE
         // ========================
         const TOTAL_ROUNDS = 5;
-        const TIME_LIMIT = 15;
+        const BASE_TIME_LIMIT = 15;
+        const MIN_TIME_LIMIT = 8;
+        const DIFFICULTY_NAMES = ['Rookie', 'Rookie', 'Pro', 'Pro', 'Elite'];
 
         let gameState = {
             currentRound: 1,
@@ -763,108 +822,184 @@
             defenderSaves: 0,
             totalAttempts: 0,
             totalCorrect: 0,
-            roundResults: [],
+            streak: 0,
+            bestStreak: 0,
             timesTaken: [],
-            currentQuestion: '',
             currentAnswer: 0,
-            timeRemaining: TIME_LIMIT,
+            timeLimit: BASE_TIME_LIMIT,
+            timeRemaining: BASE_TIME_LIMIT,
             timerInterval: null,
-            gameActive: true
+            gameActive: false
         };
 
-        // ========================
-        // QUESTION GENERATOR
-        // ========================
+        // Session-only leaderboard (resets on page reload, survives "Play Again")
+        let matchHistory = [];
+        let soundEnabled = true;
+
         function rand(min, max) {
             return Math.floor(Math.random() * (max - min + 1)) + min;
         }
 
-        function generateQuestion() {
-            const types = ['addition', 'subtraction', 'multiplication', 'division', 'percentage', 'algebra'];
-            const type = types[Math.floor(Math.random() * types.length)];
+        // ========================
+        // DIFFICULTY RAMP
+        // Combines round number and current streak so the game gets
+        // harder both as the match progresses and when you're on a roll.
+        // ========================
+        function getDifficultyTier() {
+            const roundTier = gameState.currentRound - 1; // 0..4
+            const streakBonus = Math.min(2, Math.floor(gameState.streak / 2));
+            return Math.min(4, roundTier + streakBonus);
+        }
 
+        function getTimeLimitForTier(tier) {
+            return Math.max(MIN_TIME_LIMIT, BASE_TIME_LIMIT - tier * 2);
+        }
+
+        function updateDifficultyBadge(tier) {
+            document.getElementById('difficultyLevel').textContent = DIFFICULTY_NAMES[tier];
+        }
+
+        // ========================
+        // SOUND (WebAudio, no external files needed)
+        // ========================
+        let audioCtx = null;
+        function getAudioCtx() {
+            if (!audioCtx) {
+                const AC = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AC();
+            }
+            return audioCtx;
+        }
+
+        function playTone(freq, duration, type = 'sine', delay = 0, volume = 0.18) {
+            if (!soundEnabled) return;
+            try {
+                const ctx = getAudioCtx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type;
+                osc.frequency.value = freq;
+                const startTime = ctx.currentTime + delay;
+                gain.gain.setValueAtTime(volume, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(startTime);
+                osc.stop(startTime + duration);
+            } catch (e) { /* audio not available, fail silently */ }
+        }
+
+        function playShootSound() { playTone(320, 0.1, 'square'); }
+        function playGoalSound() {
+            playTone(523, 0.12, 'triangle', 0);
+            playTone(659, 0.12, 'triangle', 0.1);
+            playTone(784, 0.2, 'triangle', 0.2);
+        }
+        function playSaveSound() {
+            playTone(180, 0.25, 'sawtooth', 0);
+            playTone(120, 0.3, 'sawtooth', 0.08);
+        }
+        function playTickSound() { playTone(880, 0.05, 'square', 0, 0.08); }
+        function playWinSound() {
+            [523, 659, 784, 1047].forEach((f, i) => playTone(f, 0.18, 'triangle', i * 0.12));
+        }
+
+        function toggleMute() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('muteBtn').textContent = soundEnabled ? '🔊' : '🔇';
+            if (soundEnabled) playTickSound();
+        }
+
+        // ========================
+        // QUESTION GENERATOR
+        // ========================
+        function generateQuestion(tier = 0) {
+            const types = ['addition', 'subtraction', 'multiplication', 'division', 'percentage', 'algebra'];
+            const type = types[rand(0, types.length - 1)];
             let question, answer;
 
             switch (type) {
-                case 'addition':
-                    const a1 = rand(10, 50);
-                    const b1 = rand(10, 50);
-                    question = `${a1} + ${b1}`;
-                    answer = a1 + b1;
+                case 'addition': {
+                    const lo = 10 + tier * 15, hi = 50 + tier * 30;
+                    const a = rand(lo, hi), b = rand(lo, hi);
+                    question = `${a} + ${b}`;
+                    answer = a + b;
                     break;
-
-                case 'subtraction':
-                    const a2 = rand(50, 100);
-                    const b2 = rand(10, 40);
-                    question = `${a2} − ${b2}`;
-                    answer = a2 - b2;
+                }
+                case 'subtraction': {
+                    const hiA = 100 + tier * 40;
+                    const a = rand(50 + tier * 20, hiA), b = rand(10, 40 + tier * 15);
+                    question = `${a} − ${b}`;
+                    answer = a - b;
                     break;
-
-                case 'multiplication':
-                    const a3 = rand(5, 15);
-                    const b3 = rand(5, 15);
-                    question = `${a3} × ${b3}`;
-                    answer = a3 * b3;
+                }
+                case 'multiplication': {
+                    const lo = 5 + Math.floor(tier * 1.5), hi = 15 + tier * 4;
+                    const a = rand(lo, hi), b = rand(lo, hi);
+                    question = `${a} × ${b}`;
+                    answer = a * b;
                     break;
-
-                case 'division':
-                    const divisor = rand(2, 10);
-                    answer = rand(5, 20);
-                    const dividend = answer * divisor;
-                    question = `${dividend} ÷ ${divisor}`;
+                }
+                case 'division': {
+                    const divisor = rand(2, 10 + tier * 2);
+                    answer = rand(5, 20 + tier * 6);
+                    question = `${answer * divisor} ÷ ${divisor}`;
                     break;
-
-                case 'percentage':
-                    const percent = rand(10, 50);
-                    const value = rand(100, 500);
+                }
+                case 'percentage': {
+                    const percent = rand(10, 50 + tier * 10), value = rand(100, 500 + tier * 150);
                     question = `${percent}% of ${value}`;
                     answer = Math.round((percent / 100) * value);
                     break;
-
-                case 'algebra':
-                    const coef = rand(2, 8);
-                    const const1 = rand(10, 30);
-                    const result = rand(20, 50);
+                }
+                case 'algebra': {
+                    const coef = rand(2, 8 + tier), const1 = rand(10, 30 + tier * 10), result = rand(20 + tier * 10, 50 + tier * 20);
                     question = `${coef}x + ${const1} = ${result}`;
                     answer = Math.round((result - const1) / coef);
                     break;
+                }
             }
-
             return { question, answer };
         }
 
         // ========================
-        // INITIALIZE GAME
+        // ROUND LIFECYCLE
         // ========================
         function initRound() {
-            const q = generateQuestion();
-            gameState.currentQuestion = q.question;
+            const tier = getDifficultyTier();
+            updateDifficultyBadge(tier);
+
+            const q = generateQuestion(tier);
             gameState.currentAnswer = q.answer;
-            gameState.timeRemaining = TIME_LIMIT;
+            gameState.timeLimit = getTimeLimitForTier(tier);
+            gameState.timeRemaining = gameState.timeLimit;
             gameState.gameActive = true;
 
             document.getElementById('questionDisplay').textContent = q.question;
-            document.getElementById('attackerAnswer').value = '';
-            document.getElementById('attackerAnswer').focus();
-            document.getElementById('resultBanner').classList.remove('show', 'goal', 'save', 'miss');
+            const input = document.getElementById('attackerAnswer');
+            input.value = '';
+            input.disabled = false;
+            document.getElementById('shootBtn').disabled = false;
+            input.focus();
+
+            document.getElementById('resultBanner').classList.remove('show', 'goal', 'save');
             document.getElementById('defenderStatus').textContent = 'Ready to defend...';
+            document.getElementById('attackerCard').classList.remove('flash-win', 'flash-lose');
+            document.getElementById('defenderCard').classList.remove('flash-win', 'flash-lose');
 
             startTimer();
         }
 
-        // ========================
-        // TIMER
-        // ========================
         function startTimer() {
             updateTimerDisplay();
-
             gameState.timerInterval = setInterval(() => {
                 gameState.timeRemaining--;
                 updateTimerDisplay();
-
+                if (gameState.timeRemaining <= 3 && gameState.timeRemaining > 0) {
+                    playTickSound();
+                }
                 if (gameState.timeRemaining <= 0) {
                     clearInterval(gameState.timerInterval);
-                    gameState.gameActive = false;
                     handleTimeUp();
                 }
             }, 1000);
@@ -872,13 +1007,13 @@
 
         function updateTimerDisplay() {
             const ring = document.getElementById('timerRing');
+            const fill = document.getElementById('timerFill');
             ring.textContent = gameState.timeRemaining;
+            fill.style.width = `${(gameState.timeRemaining / gameState.timeLimit) * 100}%`;
 
-            if (gameState.timeRemaining <= 3) {
-                ring.classList.add('critical');
-            } else {
-                ring.classList.remove('critical');
-            }
+            const critical = gameState.timeRemaining <= 3;
+            ring.classList.toggle('critical', critical);
+            fill.classList.toggle('critical', critical);
         }
 
         // ========================
@@ -886,40 +1021,53 @@
         // ========================
         function submitAttackerAnswer() {
             if (!gameState.gameActive) return;
+            playShootSound();
+            resolveRound(parseInt(document.getElementById('attackerAnswer').value, 10));
+        }
 
+        function handleTimeUp() {
+            if (!gameState.gameActive) return;
+            resolveRound(NaN);
+        }
+
+        function resolveRound(userAnswer) {
             clearInterval(gameState.timerInterval);
             gameState.gameActive = false;
+            document.getElementById('attackerAnswer').disabled = true;
+            document.getElementById('shootBtn').disabled = true;
 
-            const userAnswer = parseInt(document.getElementById('attackerAnswer').value);
-            const timeTaken = TIME_LIMIT - gameState.timeRemaining;
-
+            const timeTaken = gameState.timeLimit - gameState.timeRemaining;
             gameState.totalAttempts++;
             gameState.timesTaken.push(timeTaken);
 
-            if (!isNaN(userAnswer) && userAnswer === gameState.currentAnswer) {
-                // ATTACKER SCORES!
+            const correct = !isNaN(userAnswer) && userAnswer === gameState.currentAnswer;
+
+            if (correct) {
                 gameState.totalCorrect++;
                 gameState.attackerGoals++;
+                gameState.streak++;
+                gameState.bestStreak = Math.max(gameState.bestStreak, gameState.streak);
 
-                // AI Defender Response (slower)
-                document.getElementById('defenderStatus').textContent = '❌ Goal! Can\'t save this one!';
-
-                showGoalAnimation();
+                document.getElementById('defenderStatus').textContent = "❌ Goal! Couldn't reach it!";
+                document.getElementById('attackerCard').classList.add('flash-win');
+                document.getElementById('defenderCard').classList.add('flash-lose');
+                showFlyoutText('⚽ GOAL!', 'goal-text');
                 showResultBanner('⚽ GOAL! +1', 'goal');
-
-                gameState.roundResults.push({ attacker: 'GOAL', defender: 'MISS' });
-
+                playGoalSound();
             } else {
-                // DEFENDER SAVES!
-                document.getElementById('defenderStatus').textContent = `✅ Saved! Correct: ${gameState.currentAnswer}`;
-
                 gameState.defenderSaves++;
-                showSaveAnimation();
-                showResultBanner(`🧤 SAVED! (${gameState.currentAnswer})`, 'save');
+                gameState.streak = 0;
 
-                gameState.roundResults.push({ attacker: 'MISS', defender: 'SAVE' });
+                const reason = isNaN(userAnswer) ? "⏰ Time's up!" : '✅ Wrong shot!';
+                document.getElementById('defenderStatus').textContent = `${reason} Answer was ${gameState.currentAnswer}`;
+                document.getElementById('defenderCard').classList.add('flash-win');
+                document.getElementById('attackerCard').classList.add('flash-lose');
+                showFlyoutText('🧤 SAVED!', 'save-text');
+                showResultBanner(`🧤 SAVED! (${gameState.currentAnswer})`, 'save');
+                playSaveSound();
             }
 
+            updateStreakBadge();
             updateScores();
 
             setTimeout(() => {
@@ -929,36 +1077,11 @@
                 } else {
                     endGame();
                 }
-            }, 2000);
+            }, 1800);
         }
 
         // ========================
-        // TIME UP
-        // ========================
-        function handleTimeUp() {
-            document.getElementById('defenderStatus').textContent = '✅ Time\'s up! Defender Wins!';
-            gameState.defenderSaves++;
-
-            showSaveAnimation();
-            showResultBanner('⏰ TIME\'S UP! SAVED!', 'save');
-
-            gameState.roundResults.push({ attacker: 'TIMEOUT', defender: 'SAVE' });
-            gameState.totalAttempts++;
-
-            updateScores();
-
-            setTimeout(() => {
-                if (gameState.currentRound < TOTAL_ROUNDS) {
-                    gameState.currentRound++;
-                    initRound();
-                } else {
-                    endGame();
-                }
-            }, 2000);
-        }
-
-        // ========================
-        // UPDATE SCORES
+        // UI HELPERS
         // ========================
         function updateScores() {
             document.getElementById('attackerGoals').textContent = gameState.attackerGoals;
@@ -968,38 +1091,42 @@
             document.getElementById('defenderScore').textContent = gameState.defenderSaves;
         }
 
-        // ========================
-        // SHOW RESULT BANNER
-        // ========================
+        function updateStreakBadge() {
+            const badge = document.getElementById('streakBadge');
+            if (gameState.streak >= 2) {
+                badge.textContent = `🔥 STREAK x${gameState.streak}`;
+                badge.classList.add('show');
+            } else {
+                badge.classList.remove('show');
+            }
+        }
+
         function showResultBanner(text, type) {
             const banner = document.getElementById('resultBanner');
             banner.textContent = text;
             banner.className = `result-banner show ${type}`;
         }
 
-        // ========================
-        // ANIMATIONS
-        // ========================
-        function showGoalAnimation() {
+        function showFlyoutText(label, cls) {
             const text = document.createElement('div');
-            text.className = 'animation-text goal-text';
-            text.innerHTML = '⚽ GOAL!';
-            text.style.left = '50%';
-            text.style.top = '30%';
+            text.className = `animation-text ${cls}`;
+            text.textContent = label;
             document.body.appendChild(text);
-
             setTimeout(() => text.remove(), 1200);
         }
 
-        function showSaveAnimation() {
-            const text = document.createElement('div');
-            text.className = 'animation-text save-text';
-            text.innerHTML = '🧤 SAVED!';
-            text.style.left = '50%';
-            text.style.top = '30%';
-            document.body.appendChild(text);
-
-            setTimeout(() => text.remove(), 1000);
+        function launchConfetti() {
+            const colors = ['#00d9ff', '#ffa500', '#00e676', '#ff1744'];
+            for (let i = 0; i < 60; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = `${Math.random() * 100}vw`;
+                piece.style.background = colors[rand(0, colors.length - 1)];
+                piece.style.animationDuration = `${1.8 + Math.random() * 1.4}s`;
+                piece.style.animationDelay = `${Math.random() * 0.6}s`;
+                document.body.appendChild(piece);
+                setTimeout(() => piece.remove(), 3600);
+            }
         }
 
         // ========================
@@ -1008,6 +1135,7 @@
         function endGame() {
             const modal = document.getElementById('resultModal');
             const won = gameState.attackerGoals > gameState.defenderSaves;
+            const draw = gameState.attackerGoals === gameState.defenderSaves;
 
             document.getElementById('finalAttackerScore').textContent = gameState.attackerGoals;
             document.getElementById('finalDefenderScore').textContent = gameState.defenderSaves;
@@ -1015,7 +1143,6 @@
             const accuracy = gameState.totalAttempts > 0
                 ? Math.round((gameState.totalCorrect / gameState.totalAttempts) * 100)
                 : 0;
-
             const avgTime = gameState.timesTaken.length > 0
                 ? (gameState.timesTaken.reduce((a, b) => a + b, 0) / gameState.timesTaken.length).toFixed(1)
                 : 0;
@@ -1026,119 +1153,117 @@
             if (won) {
                 document.getElementById('resultEmoji').textContent = '🏆';
                 document.getElementById('resultTitle').textContent = 'VICTORY!';
-                document.getElementById('resultSubtitle').textContent = `You scored ${gameState.attackerGoals} goals! Fantastic match!`;
-            } else if (gameState.attackerGoals === gameState.defenderSaves) {
+                document.getElementById('resultSubtitle').textContent =
+                    `You scored ${gameState.attackerGoals} goals! Best streak: ${gameState.bestStreak}.`;
+                launchConfetti();
+                playWinSound();
+            } else if (draw) {
                 document.getElementById('resultEmoji').textContent = '🤝';
                 document.getElementById('resultTitle').textContent = 'DRAW!';
-                document.getElementById('resultSubtitle').textContent = `Both sides played equally well!`;
+                document.getElementById('resultSubtitle').textContent = 'Both sides played equally well!';
             } else {
                 document.getElementById('resultEmoji').textContent = '🧤';
                 document.getElementById('resultTitle').textContent = 'DEFEATED!';
                 document.getElementById('resultSubtitle').textContent = `Defender saved ${gameState.defenderSaves} shots!`;
             }
 
+            recordMatch(accuracy);
+            renderLeaderboard();
+
             modal.classList.add('active');
         }
 
         // ========================
-        // SHARE SCORE
+        // LEADERBOARD (session-only)
+        // ========================
+        function recordMatch(accuracy) {
+            matchHistory.push({
+                goals: gameState.attackerGoals,
+                saves: gameState.defenderSaves,
+                accuracy,
+                streak: gameState.bestStreak,
+                playedAt: matchHistory.length + 1
+            });
+        }
+
+        function renderLeaderboard() {
+            const list = document.getElementById('leaderboardList');
+            if (matchHistory.length === 0) {
+                list.innerHTML = '<div class="leaderboard-empty">No matches yet this session.</div>';
+                return;
+            }
+
+            const ranked = [...matchHistory]
+                .sort((a, b) => b.goals - a.goals || b.accuracy - a.accuracy)
+                .slice(0, 5);
+
+            list.innerHTML = ranked.map((m, i) => `
+                <div class="leaderboard-row">
+                    <span class="rank">#${i + 1}</span>
+                    <span class="lb-score">${m.goals}-${m.saves}</span>
+                    <span class="lb-meta">${m.accuracy}% acc · x${m.streak} streak</span>
+                </div>
+            `).join('');
+        }
+
+        // ========================
+        // SHARE / RESET
         // ========================
         function shareScore() {
             const result = gameState.attackerGoals > gameState.defenderSaves ? 'WON' : 'LOST';
-            const shareText = `Football Strike Math PvP: I ${result}! Scored ${gameState.attackerGoals} goals vs AI's ${gameState.defenderSaves} saves. Accuracy: ${Math.round((gameState.totalCorrect / gameState.totalAttempts) * 100)}%`;
+            const accuracy = gameState.totalAttempts > 0
+                ? Math.round((gameState.totalCorrect / gameState.totalAttempts) * 100)
+                : 0;
+            const shareText = `Football Strike Math PvP: I ${result}! Scored ${gameState.attackerGoals} goals vs AI's ${gameState.defenderSaves} saves. Accuracy: ${accuracy}%`;
 
             if (navigator.share) {
-                navigator.share({
-                    title: 'Football Strike Math PvP',
-                    text: shareText
-                }).catch(() => copyToClipboard(shareText));
+                navigator.share({ title: 'Football Strike Math PvP', text: shareText }).catch(() => copyToClipboard(shareText));
             } else {
                 copyToClipboard(shareText);
             }
         }
 
         function copyToClipboard(text) {
-            navigator.clipboard?.writeText(text).then(() => {
-                alert('Score copied to clipboard!');
-            });
+            navigator.clipboard?.writeText(text).then(() => alert('Score copied to clipboard!'));
         }
 
-        // ========================
-        // RESET GAME
-        // ========================
         function resetGame() {
-            location.reload();
+            clearInterval(gameState.timerInterval);
+            gameState = {
+                currentRound: 1,
+                attackerGoals: 0,
+                defenderSaves: 0,
+                totalAttempts: 0,
+                totalCorrect: 0,
+                streak: 0,
+                bestStreak: 0,
+                timesTaken: [],
+                currentAnswer: 0,
+                timeLimit: BASE_TIME_LIMIT,
+                timeRemaining: BASE_TIME_LIMIT,
+                timerInterval: null,
+                gameActive: false
+            };
+            document.getElementById('resultModal').classList.remove('active');
+            document.getElementById('streakBadge').classList.remove('show');
+            updateScores();
+            initRound();
         }
 
         // ========================
-        // INITIALIZE
+        // INIT
         // ========================
         document.addEventListener('DOMContentLoaded', () => {
-
-            // JOIN ROOM
-            roomRef.child("players/" + playerId).set({
-
-                joined: true,
-                score: 0
-
-            });
-
+            document.getElementById('resultModal').classList.remove('active');
+            updateDifficultyBadge(0);
             initRound();
-
-        });
-        roomRef.child("players").on("value", (snapshot) => {
-
-            const players = snapshot.val();
-
-            if (!players) return;
-
-            const count = Object.keys(players).length;
-
-            console.log("Players Connected:", count);
-
-            if (count === 2) {
-
-                alert("Match Ready!");
-
-            }
-
         });
 
-
-        // Enter key to submit
         document.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && gameState.gameActive) {
                 submitAttackerAnswer();
             }
         });
-
-
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-    <script>
-        const firebaseConfig = {
-
-            apiKey: "AIzaSyB2X4cqjED6zFYcDxTjIf5hilLUEaoIss4",
-            authDomain: "football-math-pvp.firebaseapp.com",
-            databaseURL: "https://football-math-pvp-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "football-math-pvp",
-            storageBucket: "football-math-pvp.firebasestorage.app",
-            messagingSenderId: "1002558163280",
-            appId: "1:1002558163280:web:11bed90edc221e484a0455"
-
-        };
-
-        firebase.initializeApp(firebaseConfig);
-
-        const db = firebase.database();
-
-        const roomId = "ROOM1";
-
-        const roomRef = db.ref("rooms/" + roomId);
-        const playerId =
-            Math.random().toString(36).substr(2, 9);
     </script>
 </body>
 </html>
