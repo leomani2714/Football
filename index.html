@@ -1138,6 +1138,9 @@
             font-weight: 800;
             margin-top: auto;
             display: none;
+            max-height: 30vh;
+            overflow-y: auto;
+            word-break: break-word;
         }
 
         .result-banner.show {
@@ -1214,7 +1217,8 @@
             max-width: 560px;
             width: min(100%, 560px);
             max-height: calc(100vh - 2rem);
-            overflow: hidden;
+            overflow-y: hidden;
+            overflow-x: hidden;
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 60px rgba(255, 215, 0, 0.2);
             animation: popIn 0.35s ease;
             margin: auto;
@@ -1846,13 +1850,13 @@
                         complete!</span><span id="careerStarsText" style="color:var(--gold);">☆☆☆</span></div>
             </div>
 
-            <div class="leaderboard" id="leaderboardBox">
+            <!-- <div class="leaderboard" id="leaderboardBox">
                 <div class="leaderboard-title">🌍 Global Best (this device pool)</div>
                 <div id="leaderboardList">
                     <div class="leaderboard-empty">Loading leaderboard...</div>
                 </div>
                 <div class="leaderboard-note">Scores are visible to everyone using this game.</div>
-            </div>
+            </div> -->
 
             <div class="modal-buttons">
                 <button class="btn btn-secondary" onclick="resetGame()">🔄 Play Again</button>
