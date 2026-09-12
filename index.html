@@ -1205,8 +1205,9 @@
         }
 
         .modal-content {
-            background: linear-gradient(135deg, rgba(8, 22, 14, 0.98), rgba(11, 28, 18, 0.98));
-            border-radius: 18px;
+            position: relative;
+            background: linear-gradient(135deg, rgba(10, 14, 39, 0.98), rgba(15, 23, 42, 0.98));
+            border-radius: 20px;
             padding: 2.5rem;
             border: 2px solid var(--gold);
             text-align: center;
@@ -1217,6 +1218,29 @@
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 60px rgba(255, 215, 0, 0.2);
             animation: popIn 0.35s ease;
             margin: auto;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 0.85rem;
+            right: 0.85rem;
+            width: 2.2rem;
+            height: 2.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.04);
+            color: #ddd;
+            font-size: 1.15rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 23, 68, 0.15);
+            border-color: rgba(255, 23, 68, 0.5);
+            color: #fff;
+            transform: scale(1.04);
         }
 
         .modal-emoji {
@@ -1768,6 +1792,7 @@
     <!-- Match Result Modal -->
     <div id="resultModal" class="modal">
         <div class="modal-content">
+            <button class="modal-close" id="resultModalClose" type="button" aria-label="Close result modal">✕</button>
             <div id="resultEmoji" class="modal-emoji">🏆</div>
             <div class="modal-title" id="resultTitle">VICTORY!</div>
             <div class="modal-subtitle" id="resultSubtitle">Outstanding performance!</div>
@@ -3190,7 +3215,17 @@
         // INIT
         // ========================
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('resultModal').classList.remove('active');
+            const resultModal = document.getElementById('resultModal');
+            const resultModalClose = document.getElementById('resultModalClose');
+
+            resultModal.classList.remove('active');
+            resultModalClose.addEventListener('click', () => setModalState(false));
+            resultModal.addEventListener('click', (event) => {
+                if (event.target === resultModal) {
+                    setModalState(false);
+                }
+            });
+
             buildAvatarPicker();
             buildTopicGrid();
             buildDiffGrid();
