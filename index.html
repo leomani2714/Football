@@ -1872,7 +1872,7 @@
         // ========================
         // CONSTANTS
         // ========================
-        const TOTAL_ROUNDS = 1;
+        const TOTAL_ROUNDS = 6;
         const BASE_TIME_LIMIT = 30;
         const MIN_TIME_LIMIT = 30;
         const DIFFICULTY_NAMES = ['Rookie', 'Rookie', 'Pro', 'Pro', 'Elite'];
@@ -3173,12 +3173,14 @@
         }
 
         function resetGame() {
+            setModalState(false);
+            setNextLevelButton(false);
+
             if (setup.mode === 'online') {
                 sendOnline({ type: 'restart' });
                 return;
             }
-            setModalState(false);
-            setNextLevelButton(false);
+
             resetMatchState();
             updateXpBar();
             initRound();
@@ -3228,7 +3230,7 @@
             const resultModalClose = document.getElementById('resultModalClose');
 
             resultModal.classList.remove('active');
-            resultModalClose.addEventListener('click', () => setModalState(false));
+            resultModalClose.addEventListener('click', resetGame);
             resultModal.addEventListener('click', (event) => {
                 if (event.target === resultModal) {
                     setModalState(false);
